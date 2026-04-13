@@ -18,6 +18,7 @@ public class Viajero {
 
     private String direccion;
     private Integer cantViajes;
+    private String matriculaCoche;
 
     // Getters y Setters
     public Long getId() { return id; }
@@ -32,4 +33,6 @@ public class Viajero {
     public void setDireccion(String direccion) { this.direccion = direccion; }
     public Integer getCantViajes() { return cantViajes; }
     public void setCantViajes(Integer cantViajes) { this.cantViajes = cantViajes; }
+    public String getMatriculaCoche() { return matriculaCoche; }
+    public void setMatriculaCoche(String matriculaCoche) { this.matriculaCoche = matriculaCoche; }
 }
