@@ -22,5 +22,19 @@ public class ViajeroService {
 
     public Viajero guardar(Viajero u) { return repo.save(u); }
 
+    public Viajero actualizar(Long id, Viajero datos) {
+        return repo.findById(id)
+                .map(viajero -> {
+                    viajero.setNombre(datos.getNombre());
+                    viajero.setApellido(datos.getApellido());
+                    viajero.setCorreo(datos.getCorreo());
+                    viajero.setDireccion(datos.getDireccion());
+                    viajero.setCantViajes(datos.getCantViajes());
+                    viajero.setMatriculaCoche(datos.getMatriculaCoche());
+                    return repo.save(viajero);
+                })
+                .orElse(null);
+    }
+
     public void eliminar(Long id) { repo.deleteById(id); }
 }

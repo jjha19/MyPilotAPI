@@ -42,4 +42,14 @@ public class ViajeroController {
         service.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    // PUT /api/viajeros/1 → actualiza por id
+    @PutMapping("/{id}")
+    public ResponseEntity<Viajero> update(@PathVariable Long id, @RequestBody Viajero viajero) {
+        Viajero actualizado = service.actualizar(id, viajero);
+        if (actualizado == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(actualizado);
+    }
 }
