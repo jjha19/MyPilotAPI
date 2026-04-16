@@ -5,25 +5,29 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Entity
-@Table(name = "coches")
+@Table(name = "conductores")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Coche {
+public class Conductor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String marca;
-    private String modelo;
+    private String nombre;
+    private String apellido;
 
     @Column(unique = true)
-    private String matricula;
+    private String correo;
 
-    private Integer anio;
-    private LocalDate fechaUltimaItv;
+    private Boolean disponible;
+    private Double ubicacionLat;
+    private Double ubicacionLng;
+
+    @ManyToOne
+    @JoinColumn(name = "coche_id")
+    private Coche coche;
 }
+
