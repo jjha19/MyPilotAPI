@@ -37,7 +37,6 @@ public class ConductorService {
                     conductor.setDisponible(datos.getDisponible());
                     conductor.setUbicacionLat(datos.getUbicacionLat());
                     conductor.setUbicacionLng(datos.getUbicacionLng());
-                    conductor.setCoche(datos.getCoche());
                     return repo.save(conductor);
                 })
                 .orElse(null);
@@ -57,4 +56,3 @@ public class ConductorService {
                 .orElse(null);
     }
 }
-

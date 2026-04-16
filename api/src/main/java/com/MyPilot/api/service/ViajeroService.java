@@ -30,7 +30,7 @@ public class ViajeroService {
                     viajero.setCorreo(datos.getCorreo());
                     viajero.setDireccion(datos.getDireccion());
                     viajero.setCantViajes(datos.getCantViajes());
-                    viajero.setMatriculaCoche(datos.getMatriculaCoche());
+                    viajero.setCoche(datos.getCoche());
                     return repo.save(viajero);
                 })
                 .orElse(null);

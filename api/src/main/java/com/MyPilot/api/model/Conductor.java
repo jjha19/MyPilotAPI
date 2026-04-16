@@ -25,9 +25,4 @@ public class Conductor {
     private Boolean disponible;
     private Double ubicacionLat;
     private Double ubicacionLng;
-
-    @ManyToOne
-    @JoinColumn(name = "coche_id")
-    private Coche coche;
 }
-

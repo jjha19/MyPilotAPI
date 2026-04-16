@@ -24,5 +24,8 @@ public class Viajero {
 
     private String direccion;
     private Integer cantViajes;
-    private String matriculaCoche;
+
+    @OneToOne
+    @JoinColumn(name = "coche_id")
+    private Coche coche;
 }
