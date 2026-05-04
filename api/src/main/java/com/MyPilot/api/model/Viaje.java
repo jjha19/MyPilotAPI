@@ -1,40 +1,75 @@
 package com.MyPilot.api.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "viajes")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class Viaje {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double origenLat;
-    private Double origenLng;
-    private Double destinoLat;
-    private Double destinoLng;
+    private Long viajeroId;
+
+    private Long conductorId;
 
     @Enumerated(EnumType.STRING)
-    private EstadoViaje estado;
+    private ViajeEstado estado = ViajeEstado.SOLICITADO;
 
-    private LocalDateTime fechaSolicitud;
-    private Double precio;
+    private LocalDateTime creadoEn;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "viajero_id", nullable = false)
-    private Viajero viajero;
+    private LocalDateTime actualizadoEn;
 
-    @ManyToOne
-    @JoinColumn(name = "conductor_id")
-    private Conductor conductor;
+    @PrePersist
+    public void prePersist() {
+        if (this.estado == null) {
+            this.estado = ViajeEstado.SOLICITADO;
+        }
+        this.creadoEn = LocalDateTime.now();
+        this.actualizadoEn = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.actualizadoEn = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getViajeroId() {
+        return viajeroId;
+    }
+
+    public void setViajeroId(Long viajeroId) {
+        this.viajeroId = viajeroId;
+    }
+
+    public Long getConductorId() {
+        return conductorId;
+    }
+
+    public void setConductorId(Long conductorId) {
+        this.conductorId = conductorId;
+    }
+
+    public ViajeEstado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(ViajeEstado estado) {
+        this.estado = estado;
+    }
+
+    public LocalDateTime getCreadoEn() {
+        return creadoEn;
+    }
+
+    public LocalDateTime getActualizadoEn() {
+        return actualizadoEn;
+    }
 }
-
