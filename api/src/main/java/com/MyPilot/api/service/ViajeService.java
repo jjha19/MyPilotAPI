@@ -28,10 +28,23 @@ public class ViajeService {
         return viajeRepository.findById(id);
     }
 
-    public Viaje crearViaje(Long viajeroId) {
+    public Viaje crearViaje(
+            Long viajeroId,
+            String origenDireccion,
+            Double origenLat,
+            Double origenLng,
+            String destinoDireccion,
+            Double destinoLat,
+            Double destinoLng) {
         Viaje viaje = new Viaje();
         viaje.setViajeroId(viajeroId);
         viaje.setEstado(ViajeEstado.SOLICITADO);
+        viaje.setOrigenDireccion(origenDireccion);
+        viaje.setOrigenLat(origenLat);
+        viaje.setOrigenLng(origenLng);
+        viaje.setDestinoDireccion(destinoDireccion);
+        viaje.setDestinoLat(destinoLat);
+        viaje.setDestinoLng(destinoLng);
         return viajeRepository.save(viaje);
     }
 

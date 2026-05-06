@@ -23,6 +23,18 @@ public class Viaje {
 
     private LocalDateTime actualizadoEn;
 
+    private String origenDireccion;
+
+    private Double origenLat;
+
+    private Double origenLng;
+
+    private String destinoDireccion;
+
+    private Double destinoLat;
+
+    private Double destinoLng;
+
     @PrePersist
     public void prePersist() {
         if (this.estado == null) {
@@ -71,5 +83,53 @@ public class Viaje {
 
     public LocalDateTime getActualizadoEn() {
         return actualizadoEn;
+    }
+
+    public String getOrigenDireccion() {
+        return origenDireccion;
+    }
+
+    public void setOrigenDireccion(String origenDireccion) {
+        this.origenDireccion = origenDireccion;
+    }
+
+    public Double getOrigenLat() {
+        return origenLat;
+    }
+
+    public void setOrigenLat(Double origenLat) {
+        this.origenLat = origenLat;
+    }
+
+    public Double getOrigenLng() {
+        return origenLng;
+    }
+
+    public void setOrigenLng(Double origenLng) {
+        this.origenLng = origenLng;
+    }
+
+    public String getDestinoDireccion() {
+        return destinoDireccion;
+    }
+
+    public void setDestinoDireccion(String destinoDireccion) {
+        this.destinoDireccion = destinoDireccion;
+    }
+
+    public Double getDestinoLat() {
+        return destinoLat;
+    }
+
+    public void setDestinoLat(Double destinoLat) {
+        this.destinoLat = destinoLat;
+    }
+
+    public Double getDestinoLng() {
+        return destinoLng;
+    }
+
+    public void setDestinoLng(Double destinoLng) {
+        this.destinoLng = destinoLng;
     }
 }

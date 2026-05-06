@@ -22,8 +22,22 @@ public class ViajeController {
     }
 
     @PostMapping
-    public Viaje crearViaje(@RequestParam Long viajeroId) {
-        return service.crearViaje(viajeroId);
+    public Viaje crearViaje(
+            @RequestParam Long viajeroId,
+            @RequestParam(required = false) String origenDireccion,
+            @RequestParam(required = false) Double origenLat,
+            @RequestParam(required = false) Double origenLng,
+            @RequestParam(required = false) String destinoDireccion,
+            @RequestParam(required = false) Double destinoLat,
+            @RequestParam(required = false) Double destinoLng) {
+        return service.crearViaje(
+                viajeroId,
+                origenDireccion,
+                origenLat,
+                origenLng,
+                destinoDireccion,
+                destinoLat,
+                destinoLng);
     }
 
     @GetMapping
