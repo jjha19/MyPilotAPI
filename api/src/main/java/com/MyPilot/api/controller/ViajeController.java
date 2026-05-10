@@ -57,6 +57,11 @@ public class ViajeController {
         return viaje;
     }
 
+     @PutMapping("/{viajeId}/asignar-conductor/{conductorId}")
+    public Viaje asignarConductor(@PathVariable Long viajeId, @PathVariable Long conductorId) {
+        return service.asignarConductor(viajeId, conductorId);
+    }
+
     @PutMapping("/{id}/iniciar")
     public Viaje iniciar(@PathVariable Long id) {
         Viaje viaje = service.cambiarEstado(id, ViajeEstado.EN_CURSO);
