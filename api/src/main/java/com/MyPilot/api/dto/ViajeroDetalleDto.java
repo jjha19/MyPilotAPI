@@ -1,31 +1,22 @@
-package com.MyPilot.api.model;
+package com.MyPilot.api.dto;
 
-import jakarta.persistence.*;
+import com.MyPilot.api.model.Coche;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "viajeros")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Viajero {
+public class ViajeroDetalleDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nombre;
     private String apellido;
-
-    @Column(unique = true)
     private String correo;
-
     private String direccion;
     private Integer cantViajes;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "coche_id")
     private Coche coche;
+    private Double avgRating;
 }
+

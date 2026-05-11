@@ -1,6 +1,8 @@
 package com.MyPilot.api.controller;
 
 import com.MyPilot.api.model.Viajero;
+import com.MyPilot.api.dto.ViajeroDetalleDto;
+import com.MyPilot.api.service.RatingService;
 import com.MyPilot.api.service.ViajeroService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +13,11 @@ import java.util.List;
 public class ViajeroController {
 
     private final ViajeroService service;
+    private final RatingService ratingService;
 
-    public ViajeroController(ViajeroService service) {
+    public ViajeroController(ViajeroService service, RatingService ratingService) {
         this.service = service;
+        this.ratingService = ratingService;
     }
 
     // GET /api/ → devuelve todos
@@ -24,8 +28,18 @@ public class ViajeroController {
 
     // GET /api/viajero/1 → devuelve uno por id
     @GetMapping("/{id}")
-    public ResponseEntity<Viajero> getById(@PathVariable Long id) {
+    public ResponseEntity<ViajeroDetalleDto> getById(@PathVariable Long id) {
         return service.obtenerPorId(id)
+                .map(viajero -> new ViajeroDetalleDto(
+                        viajero.getId(),
+                        viajero.getNombre(),
+                        viajero.getApellido(),
+                        viajero.getCorreo(),
+                        viajero.getDireccion(),
+                        viajero.getCantViajes(),
+                        viajero.getCoche(),
+                        ratingService.calcularPromedioViajero(viajero.getId())
+                ))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
