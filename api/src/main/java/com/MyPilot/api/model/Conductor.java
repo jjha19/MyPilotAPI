@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "conductores")
@@ -21,6 +22,9 @@ public class Conductor {
 
     @Column(unique = true)
     private String correo;
+
+    @JsonIgnore
+    private String password;
 
     private Boolean disponible;
     private Double ubicacionLat;

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "viajeros")
@@ -21,6 +22,9 @@ public class Viajero {
 
     @Column(unique = true)
     private String correo;
+
+    @JsonIgnore
+    private String password;
 
     private String direccion;
     private String direccionFavorita;
