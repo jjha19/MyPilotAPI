@@ -65,6 +65,10 @@ public class ViajeService {
         return viajeRepository.findAll();
     }
 
+    public List<Viaje> obtenerPorViajeroIdOrdenado(Long viajeroId) {
+        return viajeRepository.findByViajeroIdOrderByCreadoEnDesc(viajeroId);
+    }
+
     public Optional<Viaje> obtenerPorId(Long id) {
         return viajeRepository.findById(id);
     }

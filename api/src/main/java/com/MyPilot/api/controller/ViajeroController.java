@@ -2,6 +2,7 @@ package com.MyPilot.api.controller;
 
 import com.MyPilot.api.model.Viajero;
 import com.MyPilot.api.dto.ViajeroDetalleDto;
+import com.MyPilot.api.dto.DireccionesRequest;
 import com.MyPilot.api.service.RatingService;
 import com.MyPilot.api.service.ViajeroService;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,19 @@ public class ViajeroController {
     @PutMapping("/{id}")
     public ResponseEntity<Viajero> update(@PathVariable Long id, @RequestBody Viajero viajero) {
         Viajero actualizado = service.actualizar(id, viajero);
+        if (actualizado == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(actualizado);
+    }
+
+    // PATCH /api/viajeros/1/direcciones → actualiza direccion y direccionFavorita
+    @PatchMapping("/{id}/direcciones")
+    public ResponseEntity<Viajero> actualizarDirecciones(
+            @PathVariable Long id,
+            @RequestBody DireccionesRequest request
+    ) {
+        Viajero actualizado = service.actualizarDirecciones(id, request);
         if (actualizado == null) {
             return ResponseEntity.notFound().build();
         }

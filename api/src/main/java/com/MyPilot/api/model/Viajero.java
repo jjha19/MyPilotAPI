@@ -23,6 +23,7 @@ public class Viajero {
     private String correo;
 
     private String direccion;
+    private String direccionFavorita;
     private Integer cantViajes;
 
     @ManyToOne(fetch = FetchType.EAGER)

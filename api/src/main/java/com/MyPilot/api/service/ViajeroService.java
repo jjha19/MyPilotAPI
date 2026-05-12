@@ -1,6 +1,7 @@
 package com.MyPilot.api.service;
 
 
+import com.MyPilot.api.dto.DireccionesRequest;
 import com.MyPilot.api.model.Viajero;
 import com.MyPilot.api.repository.ViajeroRepository;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,20 @@ public class ViajeroService {
                     viajero.setDireccion(datos.getDireccion());
                     viajero.setCantViajes(datos.getCantViajes());
                     viajero.setCoche(datos.getCoche());
+                    return repo.save(viajero);
+                })
+                .orElse(null);
+    }
+
+    public Viajero actualizarDirecciones(Long id, DireccionesRequest request) {
+        return repo.findById(id)
+                .map(viajero -> {
+                    if (request.direccion() != null) {
+                        viajero.setDireccion(request.direccion());
+                    }
+                    if (request.direccionFavorita() != null) {
+                        viajero.setDireccionFavorita(request.direccionFavorita());
+                    }
                     return repo.save(viajero);
                 })
                 .orElse(null);

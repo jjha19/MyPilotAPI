@@ -8,4 +8,5 @@ import java.util.List;
 public interface ViajeRepository extends JpaRepository<Viaje, Long> {
     List<Viaje> findAllByViajeroId(Long viajeroId);
     List<Viaje> findAllByConductorId(Long conductorId);
+    List<Viaje> findByViajeroIdOrderByCreadoEnDesc(Long viajeroId);
 }

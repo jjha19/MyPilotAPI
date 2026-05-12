@@ -45,6 +45,11 @@ public class ViajeController {
         return service.obtenerTodos();
     }
 
+    @GetMapping("/viajero/{viajeroId}")
+    public List<Viaje> obtenerPorViajero(@PathVariable Long viajeroId) {
+        return service.obtenerPorViajeroIdOrdenado(viajeroId);
+    }
+
     @GetMapping("/{id}")
     public Optional<Viaje> obtenerPorId(@PathVariable Long id) {
         return service.obtenerPorId(id);
