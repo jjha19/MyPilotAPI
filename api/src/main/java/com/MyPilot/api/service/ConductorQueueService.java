@@ -58,6 +58,14 @@ public class ConductorQueueService {
         cola.removeIf(c -> c.conductorId().equals(conductorId));
     }
 
+    public boolean estaEnCola(Long conductorId) {
+        return cola.stream().anyMatch(c -> c.conductorId().equals(conductorId));
+    }
+
+    public void reincorporar(Conductor conductor) {
+        registrar(conductor);
+    }
+
     public List<ConductorEnCola> obtenerPrimeros(int cantidad) {
         return cola.stream()
                 .limit(cantidad)
@@ -69,5 +77,8 @@ public class ConductorQueueService {
                 .filter(c -> c.conductorId().equals(conductorId))
                 .findFirst();
     }
-}
 
+    public Optional<ConductorEnCola> asignarSiguiente() {
+        return Optional.ofNullable(cola.poll());
+    }
+}

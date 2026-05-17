@@ -67,6 +67,11 @@ public class ViajeController {
         return service.asignarConductor(viajeId, conductorId);
     }
 
+    @PostMapping("/{id}/asignar-conductor")
+    public Viaje asignarConductorDesdeCola(@PathVariable Long id) {
+        return service.asignarConductorDesdeCola(id);
+    }
+
     @PutMapping("/{id}/iniciar")
     public Viaje iniciar(@PathVariable Long id) {
         Viaje viaje = service.cambiarEstado(id, ViajeEstado.EN_CURSO);
@@ -79,5 +84,10 @@ public class ViajeController {
         Viaje viaje = service.cambiarEstado(id, ViajeEstado.FINALIZADO);
         messagingTemplate.convertAndSend("/topic/viajes/" + id, viaje);
         return viaje;
+    }
+
+    @PostMapping("/{viajeId}/rechazar/{conductorId}")
+    public Viaje rechazar(@PathVariable Long viajeId, @PathVariable Long conductorId) {
+        return service.rechazarViaje(viajeId, conductorId);
     }
 }

@@ -38,7 +38,8 @@ public class ViajeService {
             Double origenLng,
             String destinoDireccion,
             Double destinoLat,
-            Double destinoLng
+            Double destinoLng,
+            ViajeEstado estado
     ) {
     }
 
@@ -92,24 +93,21 @@ public class ViajeService {
         viaje.setDestinoLng(destinoLng);
         Viaje guardado = viajeRepository.save(viaje);
 
-        SolicitudViajeEvent event = new SolicitudViajeEvent(
-                guardado.getId(),
-                guardado.getViajeroId(),
-                guardado.getOrigenDireccion(),
-                guardado.getOrigenLat(),
-                guardado.getOrigenLng(),
-                guardado.getDestinoDireccion(),
-                guardado.getDestinoLat(),
-                guardado.getDestinoLng()
-        );
+        return asignarConductorSiDisponible(guardado);
+    }
 
-        conductorQueueService.obtenerPrimeros(10)
-                .forEach(conductor -> messagingTemplate.convertAndSend(
-                        "/topic/conductores/" + conductor.conductorId() + "/solicitud",
-                        event
-                ));
+    public Viaje asignarConductorDesdeCola(Long viajeId) {
+        Optional<Viaje> viajeOpt = viajeRepository.findById(viajeId);
+        if (viajeOpt.isEmpty()) {
+            return null;
+        }
 
-        return guardado;
+        Viaje viaje = viajeOpt.get();
+        if (viaje.getEstado() != ViajeEstado.SOLICITADO) {
+            return viaje;
+        }
+
+        return asignarConductorSiDisponible(viaje);
     }
 
     public Viaje cambiarEstado(Long id, ViajeEstado nuevoEstado) {
@@ -119,7 +117,17 @@ public class ViajeService {
                         throw new IllegalStateException("Transición no válida de " + viaje.getEstado() + " a " + nuevoEstado);
                     }
                     viaje.setEstado(nuevoEstado);
-                    return viajeRepository.save(viaje);
+                    Viaje actualizado = viajeRepository.save(viaje);
+
+                    if (nuevoEstado == ViajeEstado.FINALIZADO) {
+                        Long conductorId = actualizado.getConductorId();
+                        if (conductorId != null) {
+                            conductorRepository.findById(conductorId)
+                                    .ifPresent(conductorQueueService::reincorporar);
+                        }
+                    }
+
+                    return actualizado;
                 })
                 .orElse(null);
     }
@@ -167,11 +175,84 @@ public class ViajeService {
         return actualizado;
     }
 
+    public Viaje rechazarViaje(Long viajeId, Long conductorId) {
+        Optional<Viaje> viajeOpt = viajeRepository.findById(viajeId);
+        if (viajeOpt.isEmpty()) {
+            return null;
+        }
+
+        Viaje viaje = viajeOpt.get();
+        if (viaje.getEstado() != ViajeEstado.SOLICITADO) {
+            return null;
+        }
+
+        SolicitudViajeEvent event = new SolicitudViajeEvent(
+                viaje.getId(),
+                viaje.getViajeroId(),
+                viaje.getOrigenDireccion(),
+                viaje.getOrigenLat(),
+                viaje.getOrigenLng(),
+                viaje.getDestinoDireccion(),
+                viaje.getDestinoLat(),
+                viaje.getDestinoLng(),
+                viaje.getEstado()
+        );
+
+        Optional<ConductorQueueService.ConductorEnCola> siguiente = conductorQueueService.obtenerPrimeros(10)
+                .stream()
+                .filter(c -> !c.conductorId().equals(conductorId))
+                .findFirst();
+
+        if (siguiente.isPresent()) {
+            messagingTemplate.convertAndSend(
+                    "/topic/conductores/" + siguiente.get().conductorId() + "/solicitud",
+                    event
+            );
+            return viaje;
+        }
+
+        viaje.setEstado(ViajeEstado.CANCELADO);
+        Viaje actualizado = viajeRepository.save(viaje);
+        messagingTemplate.convertAndSend("/topic/viajes/" + viajeId, actualizado);
+        return actualizado;
+    }
+
     private boolean esTransicionValida(ViajeEstado actual, ViajeEstado nuevoEstado) {
         return (actual == ViajeEstado.SOLICITADO && nuevoEstado == ViajeEstado.CONDUCTOR_EN_CAMINO)
                 || (actual == ViajeEstado.CONDUCTOR_EN_CAMINO && nuevoEstado == ViajeEstado.EN_CURSO)
                 || (actual == ViajeEstado.EN_CURSO && nuevoEstado == ViajeEstado.FINALIZADO)
                 || (actual == ViajeEstado.SOLICITADO && nuevoEstado == ViajeEstado.CANCELADO)
                 || (actual == ViajeEstado.CONDUCTOR_EN_CAMINO && nuevoEstado == ViajeEstado.CANCELADO);
+    }
+
+    private Viaje asignarConductorSiDisponible(Viaje viaje) {
+        Optional<ConductorQueueService.ConductorEnCola> conductorOpt = conductorQueueService.asignarSiguiente();
+        if (conductorOpt.isEmpty()) {
+            return viaje;
+        }
+
+        ConductorQueueService.ConductorEnCola conductor = conductorOpt.get();
+        viaje.setConductorId(conductor.conductorId());
+        viaje.setEstado(ViajeEstado.CONDUCTOR_EN_CAMINO);
+        Viaje actualizado = viajeRepository.save(viaje);
+
+        SolicitudViajeEvent event = new SolicitudViajeEvent(
+                actualizado.getId(),
+                actualizado.getViajeroId(),
+                actualizado.getOrigenDireccion(),
+                actualizado.getOrigenLat(),
+                actualizado.getOrigenLng(),
+                actualizado.getDestinoDireccion(),
+                actualizado.getDestinoLat(),
+                actualizado.getDestinoLng(),
+                actualizado.getEstado()
+        );
+
+        messagingTemplate.convertAndSend(
+                "/topic/conductores/" + conductor.conductorId() + "/solicitud",
+                event
+        );
+
+        return actualizado;
     }
 }

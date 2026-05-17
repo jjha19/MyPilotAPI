@@ -1,6 +1,7 @@
 package com.MyPilot.api.controller;
 
 import com.MyPilot.api.model.Conductor;
+import com.MyPilot.api.service.ConductorQueueService;
 import com.MyPilot.api.service.ConductorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,11 @@ import java.util.List;
 public class ConductorController {
 
     private final ConductorService service;
+    private final ConductorQueueService conductorQueueService;
 
-    public ConductorController(ConductorService service) {
+    public ConductorController(ConductorService service, ConductorQueueService conductorQueueService) {
         this.service = service;
+        this.conductorQueueService = conductorQueueService;
     }
 
     @GetMapping
@@ -58,6 +61,30 @@ public class ConductorController {
         return ResponseEntity.ok(actualizado);
     }
 
+    @PostMapping("/{id}/disponible")
+    public ResponseEntity<Conductor> marcarDisponible(@PathVariable Long id) {
+        return service.obtenerPorId(id)
+                .map(conductor -> {
+                    conductorQueueService.registrar(conductor);
+                    conductor.setDisponible(true);
+                    Conductor actualizado = service.guardar(conductor);
+                    return ResponseEntity.ok(actualizado);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}/disponible")
+    public ResponseEntity<Conductor> marcarNoDisponible(@PathVariable Long id) {
+        return service.obtenerPorId(id)
+                .map(conductor -> {
+                    conductorQueueService.eliminar(id);
+                    conductor.setDisponible(false);
+                    Conductor actualizado = service.guardar(conductor);
+                    return ResponseEntity.ok(actualizado);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     public static class UbicacionRequest {
         private Double lat;
         private Double lng;
@@ -79,4 +106,3 @@ public class ConductorController {
         }
     }
 }
-
