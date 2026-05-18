@@ -55,21 +55,9 @@ public class ViajeController {
         return service.obtenerPorId(id);
     }
 
-    @PutMapping("/{id}/aceptar")
-    public Viaje aceptar(@PathVariable Long id) {
-        Viaje viaje = service.cambiarEstado(id, ViajeEstado.CONDUCTOR_EN_CAMINO);
-        messagingTemplate.convertAndSend("/topic/viajes/" + id, viaje);
-        return viaje;
-    }
-
-     @PutMapping("/{viajeId}/asignar-conductor/{conductorId}")
-    public Viaje asignarConductor(@PathVariable Long viajeId, @PathVariable Long conductorId) {
-        return service.asignarConductor(viajeId, conductorId);
-    }
-
-    @PostMapping("/{id}/asignar-conductor")
-    public Viaje asignarConductorDesdeCola(@PathVariable Long id) {
-        return service.asignarConductorDesdeCola(id);
+    @PostMapping("/{id}/aceptar/{conductorId}")
+    public Viaje aceptar(@PathVariable Long id, @PathVariable Long conductorId) {
+        return service.asignarConductor(id, conductorId);
     }
 
     @PutMapping("/{id}/iniciar")

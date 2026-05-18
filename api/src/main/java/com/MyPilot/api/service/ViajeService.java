@@ -93,22 +93,36 @@ public class ViajeService {
         viaje.setDestinoLng(destinoLng);
         Viaje guardado = viajeRepository.save(viaje);
 
-        return asignarConductorSiDisponible(guardado);
+        // Notificar a los conductores disponibles en la cola
+        notificarConductoresDisponibles(guardado);
+
+        return guardado;
     }
 
-    public Viaje asignarConductorDesdeCola(Long viajeId) {
-        Optional<Viaje> viajeOpt = viajeRepository.findById(viajeId);
-        if (viajeOpt.isEmpty()) {
-            return null;
-        }
+    private void notificarConductoresDisponibles(Viaje viaje) {
+        List<ConductorQueueService.ConductorEnCola> conductores = conductorQueueService.obtenerPrimeros(10);
+        if (!conductores.isEmpty()) {
+            SolicitudViajeEvent event = new SolicitudViajeEvent(
+                    viaje.getId(),
+                    viaje.getViajeroId(),
+                    viaje.getOrigenDireccion(),
+                    viaje.getOrigenLat(),
+                    viaje.getOrigenLng(),
+                    viaje.getDestinoDireccion(),
+                    viaje.getDestinoLat(),
+                    viaje.getDestinoLng(),
+                    viaje.getEstado()
+            );
 
-        Viaje viaje = viajeOpt.get();
-        if (viaje.getEstado() != ViajeEstado.SOLICITADO) {
-            return viaje;
+            for (ConductorQueueService.ConductorEnCola conductor : conductores) {
+                messagingTemplate.convertAndSend(
+                        "/topic/conductores/" + conductor.conductorId() + "/solicitud",
+                        event
+                );
+            }
         }
-
-        return asignarConductorSiDisponible(viaje);
     }
+
 
     public Viaje cambiarEstado(Long id, ViajeEstado nuevoEstado) {
         return viajeRepository.findById(id)
@@ -223,36 +237,5 @@ public class ViajeService {
                 || (actual == ViajeEstado.EN_CURSO && nuevoEstado == ViajeEstado.FINALIZADO)
                 || (actual == ViajeEstado.SOLICITADO && nuevoEstado == ViajeEstado.CANCELADO)
                 || (actual == ViajeEstado.CONDUCTOR_EN_CAMINO && nuevoEstado == ViajeEstado.CANCELADO);
-    }
-
-    private Viaje asignarConductorSiDisponible(Viaje viaje) {
-        Optional<ConductorQueueService.ConductorEnCola> conductorOpt = conductorQueueService.asignarSiguiente();
-        if (conductorOpt.isEmpty()) {
-            return viaje;
-        }
-
-        ConductorQueueService.ConductorEnCola conductor = conductorOpt.get();
-        viaje.setConductorId(conductor.conductorId());
-        viaje.setEstado(ViajeEstado.CONDUCTOR_EN_CAMINO);
-        Viaje actualizado = viajeRepository.save(viaje);
-
-        SolicitudViajeEvent event = new SolicitudViajeEvent(
-                actualizado.getId(),
-                actualizado.getViajeroId(),
-                actualizado.getOrigenDireccion(),
-                actualizado.getOrigenLat(),
-                actualizado.getOrigenLng(),
-                actualizado.getDestinoDireccion(),
-                actualizado.getDestinoLat(),
-                actualizado.getDestinoLng(),
-                actualizado.getEstado()
-        );
-
-        messagingTemplate.convertAndSend(
-                "/topic/conductores/" + conductor.conductorId() + "/solicitud",
-                event
-        );
-
-        return actualizado;
     }
 }
